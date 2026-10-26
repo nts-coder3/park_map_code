@@ -23,6 +23,40 @@ var MAX_IMAGES = 5;
 var SUBMISSION_WINDOW_MS = 15 * 60 * 1000;
 var SUBMISSION_LIMIT = 5;
 var submissionAttempts = new Map();
+
+function loadEnvironmentFile(filename) {
+  if (!fs.existsSync(filename)) return;
+
+  var lines = fs.readFileSync(filename, "utf8").split(/\r?\n/);
+  lines.forEach(function (line, index) {
+    var entry = line.trim();
+    if (!entry || entry.charAt(0) === "#") return;
+    if (entry.indexOf("export ") === 0) entry = entry.slice(7).trim();
+
+    var match = /^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/.exec(entry);
+    if (!match) throw new Error("Invalid .env entry on line " + (index + 1) + ".");
+
+    var value = match[2].trim();
+    var quote = value.charAt(0);
+    if (quote === '"' || quote === "'") {
+      var quotedValue = quote === '"'
+        ? /^"((?:\\.|[^"])*)"\s*(?:#.*)?$/.exec(value)
+        : /^'([^']*)'\s*(?:#.*)?$/.exec(value);
+      if (!quotedValue) {
+        throw new Error("Unterminated quoted value in .env on line " + (index + 1) + ".");
+      }
+      value = quotedValue[1];
+      if (quote === '"') value = value.replace(/\\n/g, "\n").replace(/\\r/g, "\r").replace(/\\"/g, '"');
+    } else {
+      value = value.replace(/\s+#.*$/, "").trim();
+    }
+
+    if (typeof process.env[match[1]] === "undefined") process.env[match[1]] = value;
+  });
+}
+
+loadEnvironmentFile(path.join(ROOT, ".env"));
+
 var config = {
   apiKey: process.env.RESEND_API_KEY,
   from: process.env.RESEND_FROM_EMAIL,
