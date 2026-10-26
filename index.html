@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f4f6ef">
+  <title>Bay Area Parks</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css">
+  <link rel="stylesheet" href="park-map.css">
+</head>
+<body data-page="map">
+  <header class="hero">
+    <div class="topbar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">⌁</span> OUTSIDE, CLOSE BY</div>
+      <a class="apply-link" href="application.html">Suggest a park</a>
+    </div>
+    <div class="hero-copy">
+      <p class="eyebrow">Your local guide to the outdoors</p>
+      <h1>Bay Area Parks</h1>
+      <p class="intro">Find your next favorite spot, from shady picnic lawns to trails with a view.</p>
+      <span class="hero-leaf" aria-hidden="true">❧</span>
+    </div>
+  </header>
+
+  <main>
+    <section aria-label="Park directory">
+      <div class="toolbar toolbar--landing">
+        <p class="results-label"><strong id="park-count">100 parks</strong> to explore around the Bay</p>
+        <label class="search-wrap search-wrap--landing">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.8"></circle>
+            <path d="m16 16 4.1 4.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+          </svg>
+          <input class="search search--landing" id="park-search" type="search" placeholder="Search parks or amenities..." aria-label="Search parks, locations, or amenities">
+        </label>
+        <a class="browse-parks-link" href="parks.html">Browse all parks</a>
+      </div>
+
+      <section class="map-section" aria-label="Map of Bay Area parks">
+        <div id="map-status" class="map-status" role="status" hidden></div>
+        <div id="park-map" aria-label="Interactive map showing park locations"></div>
+        <p class="map-note">Choose Roadmap, Satellite, or Terrain from the map control. Gold pins mark your three nearest recommended parks. Park pins are approximate and locations are based on the All Parks spreadsheet.</p>
+      </section>
+
+      <section class="park-details" id="park-details" aria-labelledby="park-details-title" aria-live="polite" hidden>
+        <div class="park-details-heading">
+          <h2 id="park-details-title" tabindex="-1"></h2>
+          <button class="park-details-close" id="park-details-close" type="button" aria-label="Close park details">×</button>
+        </div>
+        <p class="park-details-location" id="park-details-location"></p>
+        <p class="park-details-description" id="park-details-description"></p>
+        <div class="park-details-section">
+          <h3>Address</h3>
+          <p id="park-details-address"></p>
+        </div>
+        <div class="park-details-section">
+          <h3>Amenities</h3>
+          <div class="park-details-amenities" id="park-details-amenities"></div>
+        </div>
+        <div class="park-details-section">
+          <h3>Upcoming events</h3>
+          <ul class="park-details-events" id="park-details-events"></ul>
+        </div>
+        <div class="park-details-section">
+          <h3>Park website</h3>
+          <a class="park-details-website" id="park-details-website" target="_blank" rel="noopener noreferrer"></a>
+          <p id="park-details-no-website">No website listed.</p>
+        </div>
+      </section>
+
+      <div class="park-grid" id="park-grid" aria-live="polite" hidden></div>
+
+      <div class="empty-state" id="empty-state" role="status">
+        <strong>No parks found</strong>
+        Try another park name, city, or amenity.
+      </div>
+    </section>
+  </main>
+
+  <footer>Park listings compiled from the All Parks spreadsheet for planning your next outdoor outing.</footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
+  <script src="park-map.js"></script>
+  <script>
+    const landingSearch = document.getElementById("park-search");
+    const goToSearchPage = () => {
+      const query = landingSearch.value.trim();
+      const url = new URL("search.html", window.location.href);
+      if (query) url.searchParams.set("q", query);
+      window.location.href = url.toString();
+    };
+
+    landingSearch.addEventListener("focus", goToSearchPage);
+    landingSearch.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        goToSearchPage();
+      }
+    });
+  </script>
+</body>
+</html>

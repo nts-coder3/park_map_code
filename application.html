@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f4f6ef">
+  <title>Suggest a Park | Bay Area Parks</title>
+  <link rel="stylesheet" href="application.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="topbar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">⌁</span> OUTSIDE, CLOSE BY</div>
+      <a class="back-link" href="index.html">← Back to parks</a>
+    </div>
+    <div class="hero-copy">
+      <p class="eyebrow">Help grow the guide</p>
+      <h1>Suggest a park</h1>
+      <p class="intro">Know a great local green space? Share its details and help more people find a place to roam.</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="application-card" aria-labelledby="application-heading">
+      <h2 id="application-heading">Park application</h2>
+      <p class="form-intro">Fields marked <span class="required">*</span> are required. Your email is only used to contact you about your application.</p>
+
+      <form id="application-form">
+        <div class="field">
+          <label for="email">Your email address <span class="required">*</span></label>
+          <input id="email" name="email" type="email" autocomplete="email" maxlength="254" required>
+        </div>
+
+        <div class="field">
+          <label for="park-name">Park name <span class="required">*</span></label>
+          <input id="park-name" name="parkName" type="text" required>
+        </div>
+
+        <fieldset class="location-fields">
+          <legend class="field-label">Park location <span class="required">*</span></legend>
+          <div class="field">
+            <label for="address">Street address</label>
+            <input id="address" name="address" type="text" autocomplete="street-address" aria-describedby="location-help">
+          </div>
+          <p class="help-text" id="location-help">Provide an address, or enter both coordinates. Coordinates are optional if you provide an address.</p>
+          <div class="coordinates">
+            <div class="field">
+              <label for="latitude">Latitude</label>
+              <input id="latitude" name="latitude" type="number" min="-90" max="90" step="any" inputmode="decimal" placeholder="e.g. 37.7694">
+            </div>
+            <div class="field">
+              <label for="longitude">Longitude</label>
+              <input id="longitude" name="longitude" type="number" min="-180" max="180" step="any" inputmode="decimal" placeholder="e.g. -122.4862">
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="amenities-field">
+          <legend class="field-label">Park amenities <span class="optional-label">(optional)</span></legend>
+          <p class="help-text" id="amenities-help">Select all that apply.</p>
+          <div class="amenities-options" aria-describedby="amenities-help">
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Amphitheatre"> Amphitheatre</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Amusement ride"> Amusement ride</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Archaeological site"> Archaeological site</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Baseball field"> Baseball field</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Basketball court"> Basketball court</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Bike rack"> Bike rack</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Bocceball court"> Bocceball court</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Decorative fountain"> Decorative fountain</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Dog park"> Dog park</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Drinking fountain"> Drinking fountain</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Football field"> Football field</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Frisbee"> Frisbee</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Futsal"> Futsal</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Game tables"> Game tables</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Gateway arbor / monument"> Gateway arbor / monument</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Handball court"> Handball court</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Horseshoe court"> Horseshoe court</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Ornamental gardens"> Ornamental gardens</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Outdoor gym"> Outdoor gym</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Parcourse"> Parcourse</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Parking"> Parking</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Pickleball"> Pickleball</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Picnic area"> Picnic area</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Ping pong table"> Ping pong table</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Playground"> Playground</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Public art"> Public art</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Sand play area"> Sand play area</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Skate park"> Skate park</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Soccer field"> Soccer field</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Softball field"> Softball field</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Swimming pool"> Swimming pool</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Tee-ball"> Tee-ball</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Tennis court"> Tennis court</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Tetherball court"> Tetherball court</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Track"> Track</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Vista point"> Vista point</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Volleyball court"> Volleyball court</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Water play feature"> Water play feature</label>
+            <label class="amenity-option"><input type="checkbox" name="amenities" value="Waterbody"> Waterbody</label>
+            <label class="amenity-option"><input id="other-amenity-toggle" type="checkbox"> Other</label>
+          </div>
+          <div class="field other-amenity-field" id="other-amenity-field" hidden>
+            <label for="other-amenity">Other amenity <span class="required">*</span></label>
+            <input id="other-amenity" name="otherAmenity" type="text" maxlength="100" aria-describedby="other-amenity-help">
+            <p class="help-text" id="other-amenity-help">Enter another park amenity.</p>
+          </div>
+        </fieldset>
+
+        <div class="field image-field">
+          <label for="images">Park photos <span class="optional-label">(optional)</span></label>
+          <input id="images" name="images" type="file" accept="image/jpeg,image/png,image/gif,image/webp" multiple aria-describedby="image-help">
+          <p class="help-text" id="image-help">Up to 5 JPG, PNG, GIF, or WebP images; 4 MB each.</p>
+        </div>
+
+        <p class="form-note">Your application will be sent to the park guide team for review. We’ll email you when a decision is made.</p>
+        <button class="submit-button" type="submit">Submit application</button>
+        <p class="form-message" id="form-message" role="status" aria-live="polite" hidden></p>
+      </form>
+    </section>
+  </main>
+
+  <footer>Thanks for helping more people enjoy the outdoors.</footer>
+
+  <script src="application.js"></script>
+</body>
+</html>
