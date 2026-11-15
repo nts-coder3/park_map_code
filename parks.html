@@ -8,35 +8,90 @@
   <link rel="stylesheet" href="park-map.css">
 </head>
 <body data-page="parks">
-  <header class="hero search-header">
+  <header class="site-header">
     <div class="topbar">
-      <a class="brand" href="index.html" aria-label="Back to Bay Area parks map">
-        <span class="brand-mark" aria-hidden="true">⌁</span>
-        OUTSIDE, CLOSE BY
-      </a>
-      <a class="apply-link" href="application.html">Suggest a park</a>
-    </div>
-    <div class="hero-copy search-hero-copy">
-      <p class="eyebrow">Explore the directory</p>
-      <h1>All Bay Area Parks</h1>
-      <p class="intro">Browse parks across the Bay Area, including their locations, addresses, and amenities.</p>
-      <span class="hero-leaf" aria-hidden="true">❧</span>
+      <div class="brand" aria-label="Bay Area Parks home">
+        <span class="brand-mark" aria-hidden="true">🌳</span>
+        <span>Bay Area Parks</span>
+      </div>
+      <nav class="main-nav" aria-label="Main navigation">
+        <a class="nav-link" href="index.html">Explore Map</a>
+        <a class="nav-link active" href="parks.html">All Parks</a>
+        <a class="nav-link" href="search.html">Search</a>
+        <a class="nav-link" href="application.html">Suggest a Park</a>
+      </nav>
     </div>
   </header>
 
-  <main class="parks-main">
-    <div class="parks-heading">
-      <p class="results-label"><strong id="park-count">Loading parks...</strong> to explore around the Bay</p>
-      <a class="back-to-map-link" href="index.html">Back to map</a>
+  <main class="page-shell all-parks-shell">
+    <section class="hero-band scenic-banner" aria-label="Park directory header">
+      <div class="hero-copy">
+        <h1>Find your next favorite park</h1>
+        <p>Browse all parks in our Bay Area collection and discover the amenities each one offers.</p>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <svg viewBox="0 0 440 150" role="img" aria-label="Scenic illustration">
+          <path d="M0 110 C 90 90, 125 88, 180 106 S 310 96, 440 110 L 440 150 L 0 150 Z" fill="#cfe0c7"/>
+          <path d="M0 120 C 72 108, 110 112, 180 118 S 300 120, 440 124 L 440 150 L 0 150 Z" fill="#b7d1b0"/>
+          <g fill="#4a7d59">
+            <circle cx="80" cy="82" r="18"/>
+            <circle cx="105" cy="64" r="16"/>
+            <circle cx="128" cy="82" r="17"/>
+            <path d="M94 92 L 102 122 L 110 92 Z"/>
+          </g>
+          <g fill="#5c8d65">
+            <circle cx="315" cy="78" r="17"/>
+            <circle cx="338" cy="60" r="14"/>
+            <circle cx="362" cy="76" r="16"/>
+            <path d="M330 84 L 341 120 L 347 84 Z"/>
+          </g>
+          <g fill="#7aa87a">
+            <circle cx="224" cy="70" r="13"/>
+            <circle cx="246" cy="58" r="12"/>
+            <circle cx="263" cy="68" r="13"/>
+            <path d="M237 76 L 246 112 L 254 76 Z"/>
+          </g>
+        </svg>
+      </div>
+    </section>
+
+    <div class="toolbar all-parks-toolbar" aria-label="Park filters and sort">
+      <label class="search-wrap wide-search" for="park-search">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.8"></circle>
+          <path d="m16 16 4.1 4.1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+        </svg>
+        <input id="park-search" type="search" placeholder="Search for a park by name, city, or amenity..." aria-label="Search parks">
+      </label>
+      <label class="select-field compact" for="city-filter">
+        <select id="city-filter" aria-label="Filter parks by city">
+          <option value="">All Cities</option>
+        </select>
+      </label>
+      <label class="select-field compact" for="amenity-filter">
+        <select id="amenity-filter" aria-label="Filter parks by amenity">
+          <option value="">All Amenities</option>
+        </select>
+      </label>
+      <label class="select-field compact" for="sort-order">
+        <select id="sort-order" aria-label="Sort parks">
+          <option>Sort by: Park Name (A-Z)</option>
+        </select>
+      </label>
     </div>
-    <div class="park-grid" id="park-grid" aria-live="polite"></div>
+
+    <div class="results-row results-row--split">
+      <strong id="park-count">Loading parks...</strong>
+      <span>found</span>
+    </div>
+
+    <div class="park-grid all-parks-grid" id="park-grid" aria-live="polite"></div>
     <div class="empty-state" id="empty-state" role="status">
       <strong>No parks found</strong>
       The park list could not be loaded.
     </div>
   </main>
 
-  <footer>Park listings compiled from the All Parks spreadsheet for planning your next outdoor outing.</footer>
   <script src="park-map.js"></script>
 </body>
 </html>

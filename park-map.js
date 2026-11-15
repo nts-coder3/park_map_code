@@ -1,9 +1,11 @@
     const searchInput = document.getElementById("park-search");
     const searchTags = document.getElementById("search-tags");
+    const cityFilter = document.getElementById("city-filter");
+    const clearFiltersButton = document.getElementById("clear-filters");
     const parkCount = document.getElementById("park-count");
     const emptyState = document.getElementById("empty-state");
     const mapStatus = document.getElementById("map-status");
-    const mapSection = document.querySelector(".map-section");
+    const mapSection = document.querySelector(".map-panel");
     const parkGrid = document.getElementById("park-grid");
     const parkDetails = document.getElementById("park-details");
     const parkDetailsTitle = document.getElementById("park-details-title");
@@ -1600,6 +1602,7 @@
       }
       card.dataset.lat = String(park.lat);
       card.dataset.lng = String(park.lng);
+      card.dataset.city = city;
       card.dataset.address = address;
       if (sportsFacilities.length > 0) {
         card.dataset.sports = sportsFacilities.join(", ");
@@ -1648,6 +1651,91 @@
     }
 
     const parkCards = parkGrid ? Array.from(document.querySelectorAll(".park-card")) : [];
+    const defaultLocation = { lat: 37.7749, lng: -122.4194 };
+    const parkMarkers = [];
+    let parkMap;
+    let markerLayer;
+    let recommendedMarkerLayer;
+    let focusRequest = 0;
+    let markerUpdateTimer;
+    let defaultParkIcon;
+    let recommendedParkIcon;
+    let userLocation;
+    let userLocationMarker;
+
+    const mapShell = document.querySelector(".map-shell");
+    const sidebarResizer = document.getElementById("sidebar-resizer");
+    if (mapShell && sidebarResizer) {
+      const getSidebarWidthLimits = () => ({
+        min: 300,
+        max: Math.max(300, Math.min(640, mapShell.clientWidth - 360))
+      });
+
+      const setSidebarWidth = (width) => {
+        const limits = getSidebarWidthLimits();
+        const sidebarWidth = Math.max(limits.min, Math.min(limits.max, Math.round(width)));
+        mapShell.style.setProperty("--sidebar-width", `${sidebarWidth}px`);
+        sidebarResizer.setAttribute("aria-valuemin", String(limits.min));
+        sidebarResizer.setAttribute("aria-valuemax", String(limits.max));
+        sidebarResizer.setAttribute("aria-valuenow", String(sidebarWidth));
+        if (parkMap) {
+          window.requestAnimationFrame(() => parkMap.invalidateSize({ pan: false }));
+        }
+      };
+
+      let resizingSidebar = false;
+      sidebarResizer.addEventListener("pointerdown", (event) => {
+        if (window.matchMedia("(max-width: 1024px)").matches) return;
+        resizingSidebar = true;
+        sidebarResizer.classList.add("is-resizing");
+        document.body.classList.add("is-sidebar-resizing");
+        sidebarResizer.setPointerCapture(event.pointerId);
+        event.preventDefault();
+      });
+      sidebarResizer.addEventListener("pointermove", (event) => {
+        if (!resizingSidebar) return;
+        const shellLeft = mapShell.getBoundingClientRect().left;
+        setSidebarWidth(event.clientX - shellLeft);
+      });
+
+      const stopSidebarResize = () => {
+        resizingSidebar = false;
+        sidebarResizer.classList.remove("is-resizing");
+        document.body.classList.remove("is-sidebar-resizing");
+      };
+      sidebarResizer.addEventListener("pointerup", stopSidebarResize);
+      sidebarResizer.addEventListener("pointercancel", stopSidebarResize);
+      sidebarResizer.addEventListener("lostpointercapture", stopSidebarResize);
+      sidebarResizer.addEventListener("keydown", (event) => {
+        const limits = getSidebarWidthLimits();
+        const currentWidth = Number(sidebarResizer.getAttribute("aria-valuenow")) || 400;
+        const step = event.shiftKey ? 50 : 20;
+        let nextWidth;
+        if (event.key === "ArrowLeft") nextWidth = currentWidth - step;
+        else if (event.key === "ArrowRight") nextWidth = currentWidth + step;
+        else if (event.key === "Home") nextWidth = limits.min;
+        else if (event.key === "End") nextWidth = limits.max;
+        else return;
+
+        event.preventDefault();
+        setSidebarWidth(nextWidth);
+      });
+    }
+
+    function populateCityFilter() {
+      if (!cityFilter || !parkCards.length) return;
+      const cities = Array.from(new Set(parkCards
+        .map((card) => (card.dataset.city || "").trim())
+        .filter(Boolean))).sort((left, right) => left.localeCompare(right));
+
+      cityFilter.innerHTML = '<option value="">All cities</option>';
+      cities.forEach((city) => {
+        const option = document.createElement("option");
+        option.value = city;
+        option.textContent = city;
+        cityFilter.append(option);
+      });
+    }
 
     function initSearchPage() {
       const queryInput = document.getElementById("park-search");
@@ -1737,15 +1825,52 @@
       initSearchPage();
     } else if (document.body.dataset.page === "parks") {
       parkCount.textContent = `${parkCards.length} parks`;
+      if (searchInput) {
+        searchInput.addEventListener("input", applyParkFilters);
+      }
+      if (cityFilter) {
+        cityFilter.addEventListener("change", applyParkFilters);
+      }
+      applyParkFilters();
     } else {
-      const defaultLocation = { lat: 37.7749, lng: -122.4194 };
+      populateCityFilter();
+
+      if (searchInput) {
+        searchInput.addEventListener("input", applyParkFilters);
+      }
+      if (cityFilter) {
+        cityFilter.addEventListener("change", applyParkFilters);
+      }
+      if (clearFiltersButton) {
+        clearFiltersButton.addEventListener("click", () => {
+          if (searchInput) searchInput.value = "";
+          if (cityFilter) cityFilter.value = "";
+          activeAmenityTags.clear();
+          renderAmenityTags();
+          applyParkFilters();
+          if (searchInput) searchInput.focus();
+        });
+      }
+      if (searchTags) {
+        renderAmenityTags();
+      }
+      applyParkFilters();
+    }
 
     parkDetailsNoEvents.textContent = "No upcoming events listed.";
-    document.getElementById("park-details-close").addEventListener("click", () => {
-      parkDetails.hidden = true;
-    });
+    const parkDetailsCloseButton = document.getElementById("park-details-close");
+    if (parkDetailsCloseButton) {
+      parkDetailsCloseButton.addEventListener("click", () => {
+        if (parkDetails) {
+          parkDetails.hidden = true;
+        }
+      });
+    }
 
     function showParkDetails(card) {
+      if (!parkDetails || !parkDetailsTitle || !parkDetailsLocation || !parkDetailsDescription || !parkDetailsAddress || !parkDetailsAmenities || !parkDetailsEvents) {
+        return;
+      }
       parkDetailsTitle.textContent = card.querySelector("h2").textContent.trim();
       parkDetailsLocation.textContent = card.querySelector(".location").textContent.trim();
       parkDetailsDescription.textContent = card.querySelector(".description").textContent.trim();
@@ -1810,8 +1935,8 @@
       const earthRadiusKm = 6371;
       const deltaLat = toRadians(lat2 - lat1);
       const deltaLng = toRadians(lng2 - lng1);
-      const a = Math.sin(deltaLat / 2) ** 2
-        + Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.sin(deltaLng / 2) ** 2;
+      const a = Math.pow(Math.sin(deltaLat / 2), 2)
+        + Math.pow(Math.sin(deltaLng / 2), 2) * Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2));
       return 2 * earthRadiusKm * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
@@ -1910,6 +2035,8 @@
     }
 
     function renderAmenityTags() {
+      if (!searchTags) return;
+
       const amenityLabels = new Map();
       parkCards.forEach((card) => {
         card.querySelectorAll(".amenity").forEach((tag) => {
@@ -1949,21 +2076,30 @@
     }
 
     function applyParkFilters() {
+      if (!searchInput) return;
+
       const query = searchInput.value.trim().toLowerCase();
+      const selectedCity = cityFilter ? cityFilter.value.trim().toLowerCase() : "";
       const activeFilters = [...activeAmenityTags];
       let visibleCount = 0;
 
       parkCards.forEach((card) => {
         const text = card.dataset.search || "";
+        const city = (card.dataset.city || "").trim().toLowerCase();
         const matchesQuery = !query || text.includes(query);
+        const matchesCity = !selectedCity || city === selectedCity;
         const matchesAmenities = activeFilters.length === 0 || activeFilters.every((term) => text.includes(term));
-        const matches = matchesQuery && matchesAmenities;
+        const matches = matchesQuery && matchesCity && matchesAmenities;
         card.hidden = !matches;
         if (matches) visibleCount += 1;
       });
 
-      parkCount.textContent = `${visibleCount} ${visibleCount === 1 ? "park" : "parks"}`;
-      emptyState.style.display = visibleCount === 0 ? "block" : "none";
+      if (parkCount) {
+        parkCount.textContent = `${visibleCount} ${visibleCount === 1 ? "park" : "parks"}`;
+      }
+      if (emptyState) {
+        emptyState.style.display = visibleCount === 0 ? "block" : "none";
+      }
 
       if (markerLayer) {
         window.clearTimeout(markerUpdateTimer);
@@ -1974,21 +2110,13 @@
     }
 
     parkCount.textContent = `${parkCards.length} parks`;
-    const parkMarkers = [];
-    let parkMap;
-    let markerLayer;
-    let recommendedMarkerLayer;
-    let focusRequest = 0;
-    let markerUpdateTimer;
-    let defaultParkIcon;
-    let recommendedParkIcon;
-    let userLocation;
-    let userLocationMarker;
-
-    if (!window.L || !L.markerClusterGroup) {
-      mapStatus.textContent = "The interactive map could not load. Check your internet connection and refresh the page.";
-      mapStatus.hidden = false;
-    } else {
+    const mapContainer = document.getElementById("park-map");
+    if (mapContainer && (!window.L || !L.markerClusterGroup)) {
+      if (mapStatus) {
+        mapStatus.textContent = "The interactive map could not load. Check your internet connection and refresh the page.";
+        mapStatus.hidden = false;
+      }
+    } else if (mapContainer) {
       parkMap = L.map("park-map", { maxZoom: 19 }).setView([37.72, -122.23], 9);
       markerLayer = L.markerClusterGroup({ chunkedLoading: true }).addTo(parkMap);
       recommendedMarkerLayer = L.layerGroup().addTo(parkMap);
@@ -2070,8 +2198,10 @@
       function locateUser(shouldRecenter) {
         if (!navigator.geolocation) {
           highlightRecommendedParks(defaultLocation);
-          mapStatus.textContent = "Your browser does not support location services.";
-          mapStatus.hidden = false;
+          if (mapStatus) {
+            mapStatus.textContent = "Your browser does not support location services.";
+            mapStatus.hidden = false;
+          }
           return;
         }
 
@@ -2091,8 +2221,10 @@
           },
           () => {
             highlightRecommendedParks(defaultLocation);
-            mapStatus.textContent = "Your location is unavailable. Check your browser permissions and try again.";
-            mapStatus.hidden = false;
+            if (mapStatus) {
+              mapStatus.textContent = "Your location is unavailable. Check your browser permissions and try again.";
+              mapStatus.hidden = false;
+            }
           },
           { enableHighAccuracy: true, timeout: 8000, maximumAge: 120000 }
         );
@@ -2196,20 +2328,21 @@
       });
 
       markerLayer.addLayers(parkMarkers.map(({ marker }) => marker));
-      parkMap.fitBounds(markerLayer.getBounds().pad(0.12));
+      if (parkMarkers.length) {
+        parkMap.fitBounds(markerLayer.getBounds().pad(0.12));
+      } else {
+        parkMap.setView([defaultLocation.lat, defaultLocation.lng], 9);
+      }
       window.setTimeout(() => parkMap.invalidateSize(), 0);
 
-      locateUser(false);
+      if (document.body.dataset.page === "map") {
+        locateUser(false);
+      }
     }
-
-    searchInput.addEventListener("input", () => {
-      applyParkFilters();
-    });
 
     if (searchTags) {
       renderAmenityTags();
       document.querySelectorAll(".amenity").forEach((tag) => {
         attachAmenityClickHandler(tag);
       });
-    }
     }
